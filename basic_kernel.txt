@@ -1,0 +1,25 @@
+; basic_kernel.toy
+; Simple per-thread vector multiply: B[TID] = A[TID] * 4
+; Uses only: LOAD, MUL, STORE, MOV, HALT, ADD (no branching, atomics, or barriers)
+
+; Assume input arrays A start at memory addresses 0.. (A_base = 0)
+; Output array B starts at memory address 100 (B_base = 100)
+
+; Load thread id into R7 - you must implement LOADID for convenience OR simulator will set R7 before executing
+LOADID R7
+
+; compute source address: A_base + TID
+ADD R1 R7 #0          ; R1 = TID
+ADD R1 R1 #0          ; (no-op to show address arithmetic)
+; A is at base 0, so address = R1 + 0
+LOAD R2 R1            ; R2 = memory[A_base + TID]
+
+; multiply by constant 4
+MOV R3 #4
+MUL R4 R2 R3          ; R4 = R2 * 4
+
+; store into B_base + TID (B_base = 100)
+ADD R5 R7 #100
+STORE R4 R5
+
+HALT
