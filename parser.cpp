@@ -6,6 +6,9 @@
 
 #include <cstring> // for strncpy
 #include "parser.h"
+
+//does  not  check if instructions are valid
+
 std::vector<instruction_t> parser(const std::string filename) {
     std::ifstream file(filename);
     if (!file) {

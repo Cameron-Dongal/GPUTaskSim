@@ -4,8 +4,12 @@
 #include <chrono>
 
 #include "parser.h"
+#include "memory.h"
 
 using namespace std;
+
+constexpr int MEM_SIZE = 1024;
+vector<int> memory(MEM_SIZE, 0);
 
 int main(int argc, char* argv[]) {
 
