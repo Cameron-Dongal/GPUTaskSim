@@ -27,6 +27,7 @@ int parseArg(const std::string &arg) {
 int execute(ThreadState& thread, std::vector<instruction_t> instructions){
     for (const auto& instr : instructions){
         if (instr.opcode == "ADD"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -42,6 +43,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             thread.reg[dest] = src1 + src2;
         }else if (instr.opcode ==  "SUB"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -57,6 +59,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             thread.reg[dest] = src1 - src2;
         }else if(instr.opcode == "MUL"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -73,6 +76,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             thread.reg[dest] = src1 * src2;
 
         }else if (instr.opcode == "DIV"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -88,6 +92,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             thread.reg[dest] = src1 / src2;
         }else if (instr.opcode == "MOV"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -97,6 +102,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             thread.reg[dest] = src;
         }else if (instr.opcode == "STORE"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -106,6 +112,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             memory[thread.reg[dest]] = src; //not safe bc out of bounds is possible
         }else if (instr.opcode == "LOAD"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -117,6 +124,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
         }else if (instr.opcode == "HALT"){
             return 0;
         }else if (instr.opcode == "LOADID"){
+            thread.pc++;
             int dest = parseArg(instr.args[0]);
             thread.reg[dest] = thread.tid; 
         }
@@ -125,3 +133,13 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
 }
 
 
+int thread_func(int thread_id, std::vector<instruction_t> instructions){
+
+    ThreadState thread;
+    thread.tid = thread_id;
+    thread.pc = 0;
+
+    int ex = execute(thread, instructions);
+
+    return ex;
+}

@@ -9,3 +9,4 @@ typedef struct {
 } instruction_t;
 
 std::vector<instruction_t> parser(const std::string filename);
+void printInstrs(const std::vector<instruction_t>& instructions);

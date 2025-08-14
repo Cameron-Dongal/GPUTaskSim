@@ -4,7 +4,7 @@ CXXFLAGS = /nologo /std:c++20 /EHsc
 
 TARGET = main.exe
 
-SRCS = main.cpp parser.cpp
+SRCS = main.cpp parser.cpp thread.cpp
 
 all: $(TARGET)
 

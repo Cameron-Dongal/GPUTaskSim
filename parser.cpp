@@ -10,6 +10,7 @@
 //does  not  check if instructions are valid
 
 std::vector<instruction_t> parser(const std::string filename) {
+
     std::ifstream file(filename);
     if (!file) {
         return {};
@@ -50,3 +51,14 @@ std::vector<instruction_t> parser(const std::string filename) {
     file.close();
     return instructions; //return vector of instructions
 }
+
+void printInstrs(const std::vector<instruction_t>& instructions) {
+    for (const auto& instr : instructions) {
+        std::cout << "Opcode: " << instr.opcode << ", Args: ";
+        for (int i = 0; i < instr.num_args; ++i) {
+            std::cout << instr.args[i] << (i < instr.num_args - 1 ? ", " : "");
+        }
+        std::cout << std::endl;
+    }
+}
+
