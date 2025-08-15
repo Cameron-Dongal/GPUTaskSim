@@ -3,10 +3,14 @@
 #include <thread>
 #include <string>
 #include <cctype>
+#include <semaphore>
 
 #include "parser.h"
 #include "memory.h"
 #include "thread.h"
+
+
+std::counting_semaphore<1> cout_sem(1);
 
 ArgType getArgType(const std::string &arg) {
     if (arg.empty()) return REG; 
@@ -15,7 +19,7 @@ ArgType getArgType(const std::string &arg) {
     }
     if ( arg[0] == 'R' && arg.size() > 1 && std::isdigit(arg[1])) {
         return REG; 
-    }   
+    }   //assumes kernel file is correct
 }
 
 int parseArg(const std::string &arg) {
@@ -26,7 +30,7 @@ int parseArg(const std::string &arg) {
 
 int execute(ThreadState& thread, std::vector<instruction_t> instructions){
     for (const auto& instr : instructions){
-        if (instr.opcode == "ADD"){
+        if (std::strcmp(instr.opcode, "ADD") == 0) {
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
@@ -42,7 +46,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 + src2;
-        }else if (instr.opcode ==  "SUB"){
+        }else if (std::strcmp(instr.opcode,  "SUB") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
@@ -58,7 +62,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 - src2;
-        }else if(instr.opcode == "MUL"){
+        }else if(std::strcmp(instr.opcode, "MUL") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
@@ -75,7 +79,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
             }
             thread.reg[dest] = src1 * src2;
 
-        }else if (instr.opcode == "DIV"){
+        }else if (std::strcmp(instr.opcode, "DIV") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src1;
@@ -91,7 +95,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 / src2;
-        }else if (instr.opcode == "MOV"){
+        }else if (std::strcmp(instr.opcode, "MOV") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
@@ -101,7 +105,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             thread.reg[dest] = src;
-        }else if (instr.opcode == "STORE"){
+        }else if (std::strcmp(instr.opcode, "STORE") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
@@ -111,7 +115,7 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             memory[thread.reg[dest]] = src; //not safe bc out of bounds is possible
-        }else if (instr.opcode == "LOAD"){
+        }else if (std::strcmp(instr.opcode, "LOAD") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             int src;
@@ -121,14 +125,22 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             thread.reg[dest] = memory[src];
-        }else if (instr.opcode == "HALT"){
+        }else if (std::strcmp(instr.opcode, "HALT") == 0){
+
+
+
+            cout_sem.acquire(); 
+            std::cout << "Thread " << thread.tid << " finished execution." << std::endl;
+            cout_sem.release();
+
             return 0;
-        }else if (instr.opcode == "LOADID"){
+        }else if (std::strcmp(instr.opcode, "LOADID") == 0){
             thread.pc++;
             int dest = parseArg(instr.args[0]);
             thread.reg[dest] = thread.tid; 
         }
     }
+    
     return 1; //instructions end with no  halt message
 }
 
