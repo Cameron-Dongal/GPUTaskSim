@@ -1,6 +1,7 @@
-; basic_kernel.toy
+; basic_kernel
 ; Simple per-thread vector multiply: B[TID] = A[TID] * 4
 ; Uses only: LOAD, MUL, STORE, MOV, HALT, ADD (no branching, atomics, or barriers)
+; UPDATE:  I ADDED BEQ AND JUMP
 
 ; Assume input arrays A start at memory addresses 0.. (A_base = 0)
 ; Output array B starts at memory address 100 (B_base = 100)
@@ -21,5 +22,13 @@ MUL R4 R2 R3          ; R4 = R2 * 4
 ; store into B_base + TID (B_base = 100)
 ADD R5 R7 #100
 STORE R4 R5
+
+JUMP #10
+
+ADD R3 R4 R4        ;should be skipped by JUMP
+
+BEQ #0 #0 #12
+
+ADD R4 R3 R3        ; should be  skipped by BEQ
 
 HALT

@@ -29,9 +29,10 @@ int parseArg(const std::string &arg) {
 //opcodes to execute: ADD, SUB, MUL, DIV,  MOV, LOAD, STORE, HALT, LOADID
 
 int execute(ThreadState& thread, std::vector<instruction_t> instructions){
-    for (const auto& instr : instructions){
+    while(thread.pc < instructions.size()){
+        const auto& instr = instructions[thread.pc];
         if (std::strcmp(instr.opcode, "ADD") == 0) {
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -46,8 +47,11 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 + src2;
+            if (thread.tid == 0){
+                std::cout << "ADD performed, PC = " << thread.pc << std::endl;
+            }
         }else if (std::strcmp(instr.opcode,  "SUB") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -62,8 +66,11 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 - src2;
+            if (thread.tid == 0){
+                std::cout << "SUB performed, PC = " << thread.pc << std::endl;
+            }
         }else if(std::strcmp(instr.opcode, "MUL") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -78,9 +85,12 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 * src2;
+            if (thread.tid == 0){
+                std::cout << "MUL performed, PC = " << thread.pc << std::endl;
+            }
 
         }else if (std::strcmp(instr.opcode, "DIV") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src1;
             if (getArgType(instr.args[1]) == IMM) {
@@ -95,8 +105,11 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src2 = thread.reg[parseArg(instr.args[2])];
             }
             thread.reg[dest] = src1 / src2;
+                        if (thread.tid == 0){
+                std::cout << "DIV performed, PC = " << thread.pc << std::endl;
+            }
         }else if (std::strcmp(instr.opcode, "MOV") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -105,8 +118,11 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             thread.reg[dest] = src;
+            if (thread.tid == 0){
+                std::cout << "MOV performed, PC = " << thread.pc << std::endl;
+            }
         }else if (std::strcmp(instr.opcode, "STORE") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -115,8 +131,11 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             memory[thread.reg[dest]] = src; //not safe bc out of bounds is possible
+            if (thread.tid == 0){
+                std::cout << "STORE performed, PC = " << thread.pc << std::endl;
+            }
         }else if (std::strcmp(instr.opcode, "LOAD") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             int src;
             if (getArgType(instr.args[1]) == IMM) {
@@ -125,6 +144,9 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
                 src = thread.reg[parseArg(instr.args[1])];
             }
             thread.reg[dest] = memory[src];
+            if (thread.tid == 0){
+                std::cout << "LOAD performed, PC = " << thread.pc << std::endl;
+            }
         }else if (std::strcmp(instr.opcode, "HALT") == 0){
 
 
@@ -135,10 +157,38 @@ int execute(ThreadState& thread, std::vector<instruction_t> instructions){
 
             return 0;
         }else if (std::strcmp(instr.opcode, "LOADID") == 0){
-            thread.pc++;
+            
             int dest = parseArg(instr.args[0]);
             thread.reg[dest] = thread.tid; 
+            if (thread.tid == 0){
+                std::cout << "LOADID performed, PC = " << thread.pc << std::endl;
+            }
+        }else if (std::strcmp(instr.opcode, "JUMP") == 0){
+
+            if (thread.tid == 0){
+                std::cout << "JUMP performed, PC = " << thread.pc << std::endl;
+            }
+            thread.pc = parseArg(instr.args[0]);
+
+            continue;
+        }else if (std::strcmp(instr.opcode, "BEQ") == 0){ 
+            int src1 = (getArgType(instr.args[0]) == IMM) ? parseArg(instr.args[0]) : thread.reg[parseArg(instr.args[0])];
+            int src2 = (getArgType(instr.args[1]) == IMM) ? parseArg(instr.args[1]) : thread.reg[parseArg(instr.args[1])];
+            if (src1 == src2) {
+                if (thread.tid == 0){
+                    std::cout << "BEQ success, PC = " << thread.pc << std::endl;
+                }
+                thread.pc = parseArg(instr.args[2]);
+                continue;
+            }
+            
+
+            if (thread.tid == 0){
+                std::cout << "BEQ fail, PC = " << thread.pc << std::endl;
+            }
+            
         }
+        thread.pc++;
     }
     
     return 1; //instructions end with no  halt message
